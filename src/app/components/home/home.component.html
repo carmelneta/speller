@@ -1,43 +1,64 @@
-<img ng-src="{{$ctrl.imgSrc}}" alt="">
-<div id="block" tabindex="0"  >
-  
+<div layout="column" layout-align="space-between center" layout-fill >
+
+  <div>
+    <md-progress-circular ng-show="$ctrl.loading" md-mode="indeterminate"></md-progress-circular>
+    <img ng-if="!$ctrl.loading" ng-src="{{$ctrl.imgSrcArr[$ctrl.image].assets.preview.url}}">
+  </div>  
 
   <div id="blocks" layout="row" layout-align="center center">
-    <div class="block" 
-    ng-repeat="letter in $ctrl.word track by $index" layout="row" 
-    layout-align="center center" 
-    ng-class="{
-      'success': $ctrl.testLetter($index),
-      'active' : $index === $ctrl.activeLetter
-      }"
-    ng-focus="$ctrl.focus($event, $index)"
-    tabindex="0">
+    <div class="block" ng-repeat="letter in $ctrl.word track by $index" 
+      layout="row" 
+      layout-align="center center" 
+      ng-class="{
+        'success': $ctrl.testLetter($index),
+        'active' : $index === $ctrl.activeLetter
+        }"
+      ng-focus="$ctrl.focus($event, $index)"
+      tabindex="0">
 
       <span>{{$ctrl.models[$index]}}</span>
-      <input class="input" 
-        type="text" 
-        ng-model="$ctrl.models[$index]"
-        maxlength="1" 
-        ng-change="$ctrl.modelChange($index)">
+      <input class="input" type="text" maxlength="1" ng-keyup="$ctrl.modelChange($index, $event)">
     </div>
   </div>
-</div>
 
-<pre>
-  {{$ctrl.word.length}}
-  {{$ctrl.text}}
-</pre>
+  <div layout id="btns" layout-align="space-between center">
+    
+    <md-button class="md-raised md-primary" ng-click="$ctrl.getHint()">Hint</md-button>
+    <md-button class="md-raised md-warn" ng-click="$ctrl.imageChange()">Change Image</md-button>
+  </div>
+
+  <div layout="row" layout-align="center">
+      <md-checkbox 
+      class="md-secondary" 
+      ng-repeat="step in $ctrl.steps" 
+      ng-model="$ctrl.steps[$index].success"
+      ng-class="{'active': $index === $ctrl.activeStep}"
+      aria-label="$index"
+      disabled></md-checkbox>
+  </div>
+</div> 
 <style>
-  #block { 
+  #btns {
+    margin: 30px;
   }
+
   img {
     max-height: 50vh;
+    margin: auto;
+    display: block;
+    max-width: 100%;
   }
+
+  #blocks {
+    margin: 20px 0 ;
+  }
+
   .block {
     height: 50px;
     width: 50px;
     border: 1px solid;
     overflow: hidden;
+    cursor: pointer;
   }
 
   .block.active {
@@ -52,5 +73,12 @@
     opacity: 0;
     position: absolute;
     width: 1px;
+  }
+
+  md-checkbox.active .md-container .md-icon{
+    border-color: #ff022e;
+  }
+  md-checkbox.active .md-container {
+    box-shadow: 1px 1px 10px;
   }
 </style>

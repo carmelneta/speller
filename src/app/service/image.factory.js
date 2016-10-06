@@ -16,7 +16,7 @@ export function Images( $http, $q ) {
       $http(req).then(
         x => { 
           if(x.data.data.length) {
-            defered.resolve( x.data.data[0].assets.preview.url );
+            defered.resolve( x.data.data );
           }else {
             defered.reject(x);
           }

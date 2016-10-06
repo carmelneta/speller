@@ -1,34 +1,38 @@
 class Ctrl {
-  constructor ( $element, images ) {
+  constructor ( $element, images, $firebaseArray, Steps, $timeout ) {
     'ngInject';
-    this.text = 'CARMEL';
-    this.word = 'elephent';
-
+   
     this._$element = $element;
     this._images = images;
-    this.models = [];
+    this._$firebaseArray = $firebaseArray;
+    this._Steps = Steps;
+    this._$timeout = $timeout;
+
+    this.steps = [{},{}, {}, {}, {}];
+    this.activeStep = 0; 
+    this.image = 0;
   }
 
   change($event) {
     if( this.text.length >= this.word.length && $event.code !== 'Backspace') {
       $event.preventDefault();
     }
-
   }
 
-  modelChange( $index ) {
+  modelChange( $index, $event ) { 
+    
+    var lastChar = $event.target.value.substr($event.target.value.length - 1);
 
-      if( this.text === this.word) {
-        alert("Success");
-      }
+    this.models[$index] = lastChar.toUpperCase();
+    if(lastChar.length) {
+      this.goto($index + 1);
+    }else {
+      this.goto($index - 1);
+    }
 
-      // console.log($index, this.models[$index].length ,this.models);
-
-      console.log(this._$element);
-
-      if(this.models[$index].length) {
-
-      }
+    this.testSuccess();
+    $event.target.value = null;
+    return; 
   }
 
   focus($event, $index) {
@@ -43,15 +47,80 @@ class Ctrl {
   }
 
   $onInit() {
-    this._images.search( this.word ).then(
-      x => this.imgSrc = x,
-      x => console.log(x)
-    );
+
+    this.getWord();
   }
 
-  getHint(){
+  getWord() {
+    
+    this.loading = true;
+    this._Steps.get(this.activeStep).then(
+      word => {
+        this.word = word.toUpperCase();
+        
+        this._images.search( this.word ).then(
+          x => this.imgSrcArr = x,
+          x => console.log(x)
+        );
+
+        this.models = this.word.split("").map(() => null);
+
+        this.goto(0);
+
+        
+        this.loading = false;
+      } );
+
 
   }
+
+  getHint() {
+
+    var emptyIndex = [];
+
+    this.models.map( (x,a) => { if ( !this.testLetter(a) ) emptyIndex.push(a); } );
+    
+    var index = emptyIndex[Math.floor(Math.random()*emptyIndex.length)];
+    
+    this.models[index] = this.word[index];
+
+    this.testSuccess();
+  }
+
+  goto(num) {
+    var blocks = document.querySelectorAll('.block');
+    if( blocks[ num ] ) {
+      blocks[num].focus();
+    }
+  }
+
+  testSuccess() {
+    if( this.models.join("") === this.word ) {
+      this._$timeout(
+        () => {
+          console.log('done');
+          this.steps[this.activeStep]['success'] = true;
+
+          if( this.steps[ this.activeStep + 1 ] ) {
+            this.activeStep++;
+            this.getWord(); 
+          }else {
+            alert('All Done')
+          }
+        },
+        500
+      )
+    }
+  }
+
+  imageChange() {
+    if( this.imgSrcArr[ this.image +1 ] ) {
+      this.image++;
+    }else {
+      this.image = 0;
+    }
+  }
+ 
 }
 
 

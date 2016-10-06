@@ -3,7 +3,6 @@ export function config ($logProvider) {
   // Enable log
   $logProvider.debugEnabled(true);
 
-
   var config = {
     apiKey: "AIzaSyDfv_mQT6W_rt4Woh-bpc1KypVCfHYA_c0",
     authDomain: "seller-34231.firebaseapp.com",
